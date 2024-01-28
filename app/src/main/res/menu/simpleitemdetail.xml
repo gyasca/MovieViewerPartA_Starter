@@ -3,13 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/miViewFavorites"
-        android:title="View Favorites"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/miSignOut"
-        android:title="Sign Out"
+        android:id="@+id/miAddAsFavorite"
+        android:title="Add as Favorite"
         app:showAsAction="never" />
 
 </menu>

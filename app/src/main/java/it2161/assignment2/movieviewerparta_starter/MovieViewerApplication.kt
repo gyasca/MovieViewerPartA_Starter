@@ -30,9 +30,10 @@ class MovieViewerApplication : Application(){
         val releaseDate = movie.release_date.toString()
         val originalLanguage = movie.original_language.toString()
         val title = movie.title.toString()
+        val favorite = false
 
         // Insert into the database
-        val rowID = db.insertEntry(overview, releaseDate, originalLanguage, title)
+        val rowID = db.insertEntry(overview, releaseDate, originalLanguage, title, favorite)
 
         db.close()
 
@@ -51,6 +52,19 @@ class MovieViewerApplication : Application(){
         return updateStatus
     }
 
+    fun updateMovieAsFavorite(title: String, favorite: Boolean, c: Context): Boolean {
+        val db = DatabaseAdapter(c)
+        db.open()
+
+        // Update the movie in the database
+        val updateStatus = db.updateMovieAsFavorite(title, favorite)
+
+        db.close()
+
+        return updateStatus
+    }
+
+
     fun retrieveAllMovies(c: Context): List<SimpleMovieItem> {
         val myCursor: Cursor?
         val db = DatabaseAdapter(c)
@@ -68,9 +82,10 @@ class MovieViewerApplication : Application(){
                 val releaseDate = myCursor.getString(db.COLUMN_RELEASE_DATE_ID)
                 val originalLanguage = myCursor.getString(db.COLUMN_ORIGINAL_LANGUAGE_ID)
                 val title = myCursor.getString(db.COLUMN_TITLE_ID)
+                val favorite = myCursor.getString(db.COLUMN_TITLE_ID)
 
                 // Create SimpleMovieItem object and add to the list
-                val movie = SimpleMovieItem(overview, releaseDate, originalLanguage, title)
+                val movie = SimpleMovieItem(overview, releaseDate, originalLanguage, title, favorite.toBoolean())
                 resultedDatabaseList.add(movie)
 
             } while (myCursor.moveToNext())
@@ -79,5 +94,35 @@ class MovieViewerApplication : Application(){
         db.close()
         return resultedDatabaseList
     }
+
+    fun retrieveFavoriteMovies(c: Context): List<SimpleMovieItem> {
+        val myCursor: Cursor?
+        val db = DatabaseAdapter(c)
+        val resultedDatabaseList = ArrayList<SimpleMovieItem>()
+        db.open()
+
+        // Retrieve movies with favorite value 1 from the database
+        myCursor = db.retrieveAllEntriesCursor("${db.FAVORITE} = 1")
+        if (myCursor != null && myCursor.count > 0) {
+            myCursor.moveToFirst()
+            do {
+                // Extract data from the cursor
+                val overview = myCursor.getString(db.COLUMN_OVERVIEW_ID)
+                val releaseDate = myCursor.getString(db.COLUMN_RELEASE_DATE_ID)
+                val originalLanguage = myCursor.getString(db.COLUMN_ORIGINAL_LANGUAGE_ID)
+                val title = myCursor.getString(db.COLUMN_TITLE_ID)
+                val favorite = myCursor.getString(db.COLUMN_TITLE_ID)
+
+                // Create SimpleMovieItem object and add to the list
+                val movie = SimpleMovieItem(overview, releaseDate, originalLanguage, title, favorite.toBoolean())
+                resultedDatabaseList.add(movie)
+
+            } while (myCursor.moveToNext())
+        }
+
+        db.close()
+        return resultedDatabaseList
+    }
+
 
 }

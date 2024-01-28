@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SimpleViewListOfMoviesActivity">
+    tools:context=".ListOfFavoriteMoviesActivity">
 
     <ListView
-        android:id="@+id/lvMovie"
+        android:id="@+id/lvFavouriteMovies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

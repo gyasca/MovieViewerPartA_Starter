@@ -27,6 +27,8 @@ class DatabaseAdapter(c: Context) {
     val COLUMN_ORIGINAL_LANGUAGE_ID = 3
     val TITLE = "title"
     val COLUMN_TITLE_ID = 4
+    val FAVORITE = "favorite"
+    val COLUMN_FAVORITE_ID = 5
 
 //    protected val DATABASE_CREATE = ("create table " + DATABASE_TABLE + " " + "(" + KEY_ID + " integer primary key autoincrement, " + OVERVIEW + " text not null);"
 //            + RELEASE_DATE + " text not null);" + ORIGINAL_LANGUAGE + " text not null);" + TITLE + " text not null);")
@@ -37,7 +39,8 @@ class DatabaseAdapter(c: Context) {
                     OVERVIEW + " text not null, " +
                     RELEASE_DATE + " text not null, " +
                     ORIGINAL_LANGUAGE + " text not null, " +
-                    TITLE + " text not null);"
+                    TITLE + " text not null, " +
+                    FAVORITE + " integer not null);"
             )
 
     private val MYDBADAPTER_LOG_CAT = "MY_LOG"
@@ -65,7 +68,7 @@ class DatabaseAdapter(c: Context) {
 
     }
 
-    fun insertEntry(overview: String, releaseDate: String, originalLanguage: String, title: String): Long? {
+    fun insertEntry(overview: String, releaseDate: String, originalLanguage: String, title: String, favorite: Boolean): Long? {
         //TODO 4 - insert record into table
 
         val newEntryValues = ContentValues()
@@ -74,6 +77,7 @@ class DatabaseAdapter(c: Context) {
         newEntryValues.put(RELEASE_DATE, releaseDate)
         newEntryValues.put(ORIGINAL_LANGUAGE, originalLanguage)
         newEntryValues.put(TITLE, title)
+        newEntryValues.put(FAVORITE, favorite)
 
         return _db?.insert(DATABASE_TABLE,null,newEntryValues)
     }
@@ -89,31 +93,49 @@ class DatabaseAdapter(c: Context) {
         return true
     }
 
-    fun updateEntry(_rowIndex: Int, entryName: String, entryTel: String): Boolean {
+    fun updateMovieAsFavorite(title: String, favorite: Boolean): Boolean {
+        val updatedValues = ContentValues()
+        updatedValues.put(FAVORITE, if (favorite) 1 else 0) // Convert Boolean to Integer
 
-
-        return false
+        return try {
+            _db?.update(DATABASE_TABLE, updatedValues, "$TITLE = ?", arrayOf(title))!! > 0
+        } catch (e: SQLiteException) {
+            Log.w(MYDBADAPTER_LOG_CAT, "Update failed")
+            false
+        }
     }
 
-    fun retrieveAllEntriesCursor(): Cursor? {
-        //TODO 6 - retrieve all records from table
-
+    fun retrieveAllEntriesCursor(whereClause: String? = null): Cursor? {
         var c: Cursor? = null
         try {
-            c = _db?.query(DATABASE_TABLE,
-                arrayOf(KEY_ID, OVERVIEW, RELEASE_DATE, ORIGINAL_LANGUAGE, TITLE),
-                null,
-                null,
-                null,
-                null,
-                null)
+            c = if (whereClause.isNullOrEmpty()) {
+                _db?.query(
+                    DATABASE_TABLE,
+                    arrayOf(KEY_ID, OVERVIEW, RELEASE_DATE, ORIGINAL_LANGUAGE, TITLE, FAVORITE),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            } else {
+                _db?.query(
+                    DATABASE_TABLE,
+                    arrayOf(KEY_ID, OVERVIEW, RELEASE_DATE, ORIGINAL_LANGUAGE, TITLE, FAVORITE),
+                    whereClause,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
         } catch (e: SQLiteException) {
-
             Log.w(DATABASE_TABLE, "Retrieve fail")
         }
 
         return c
     }
+
 
 
 
