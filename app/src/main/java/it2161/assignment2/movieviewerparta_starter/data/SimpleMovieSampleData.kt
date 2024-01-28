@@ -9,8 +9,8 @@ class SimpleMovieSampleData {
     companion object{
 
         var simpleMovieitemArray : ArrayList<SimpleMovieItem>
-        init {
 
+        init {
             simpleMovieitemArray = ArrayList<SimpleMovieItem>()
             populateSimpleMovieItem()
         }
